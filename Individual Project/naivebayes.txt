@@ -1,0 +1,105 @@
+import numpy as np
+from numpy import genfromtxt
+import collections
+from collections import Counter
+import csv
+import re
+
+def getCategories(dataset):
+        i = 0
+        categories = []
+        while i < len(dataset):
+                categories.append(dataset[i, noOfAttributes])
+                i  = i + 1
+        categories_set = set(categories)
+        categories = list(categories_set)
+        return categories
+
+#Read in the file to an array
+filename = "smallDataSet.csv"
+dataset = genfromtxt(filename, delimiter=',', dtype=int)
+
+#Calculates the number of attributes in the file
+with open(filename, 'r') as f:
+        reader = csv.reader(f, delimiter=',', skipinitialspace=True)
+        firstRow = next(reader)
+        noOfColumns = len(firstRow)
+        noOfAttributes = noOfColumns - 1
+ 
+
+#Split the dataset into 60% training and 40% test data
+length = len(dataset)
+
+np.random.shuffle(dataset)
+
+trainingSet, testSet = dataset[:int(length*0.6),:], dataset[:int(length*0.4)]
+
+print 'training set', trainingSet
+print 'test set', testSet
+
+#Calculate number of training and test data
+totalTraining = len(trainingSet)
+totalTest = len(testSet)
+
+#Calculate the mean of each attribute
+m = np.mean(trainingSet, axis = 0)
+
+
+#Calculate the standard deviation of each attribute
+std = np.std(trainingSet, axis = 0)
+
+categories = getCategories(dataset)
+print categories
+
+#i = test number
+no_of_test = 0
+#j = attribute number
+no_of_attrib = 0
+# number of category
+no_of_category = 0
+# num of categories
+num_category = 0
+#k = training number
+no_of_training = 0
+
+count = []
+
+             
+for i in testSet:
+        print 'test data is', testSet[no_of_test]
+        #while there's still a category to test
+        while no_of_category < len(categories):
+                p_category = 0.0
+                #while there's still training data to test with
+                while no_of_training < len(trainingSet):
+                        if categories[no_of_category] == trainingSet[no_of_training][no_of_attrib]:
+                                num_category = num_category + 1
+                                no_of_training = no_of_training + 1
+                        else:
+                                num_category = num_category + 0
+                                no_of_training = no_of_training + 1
+
+                print 'category', categories[no_of_category], ':', num_category
+                p_category = float(num_category) / float(len(trainingSet))
+                print float(p_category)
+                print no_of_attrib
+                no_of_training = 0
+
+
+
+  while no_of_attrib < noOfAttributes:
+                        while no_of_training < len(trainingSet):
+                                print testSet[no_of_attrib]
+                                print trainingSet[no_of_training, no_of_attrib]
+                                if np.all(testSet[no_of_attrib] == trainingSet[no_of_training, no_of_attrib]) & np.all(categories[no_of_category] == trainingSet[no_of_training, no_of_attrib]):
+                                        count[no_of_attrib] = count[no_of_attrib] + 1
+                                        p_category *= (float(count[i]) + 2) / (float(num_category + 2))
+                                        print 'final', testSet[no_of_test] ,p_category
+                                        no_of_training = no_of_training + 1
+                                else:
+                                        print 'NOPE'
+                                        no_of_training = no_of_training + 1
+                        num_category = 0
+                        no_of_category = no_of_category + 1
+                no_of_category = 0
+                no_of_test = no_of_test + 1
